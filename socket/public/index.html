@@ -1,0 +1,53 @@
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Chat APP</title>
+  </head>
+  <body>
+    <h1>Chatting</h1>
+
+    <input type="text" id="message" placeholder="Enter Message" />
+    <button id="sendBtn">Send</button>
+
+    <div id="messages"></div>
+
+    <script src="/socket.io/socket.io.js"></script>
+    <script>
+      const socket = io();
+      let roomid
+      socket.on('connect', function() {
+        console.log(socket.id)
+      });
+      const sendBtn = document.getElementById("sendBtn");
+      const messageInput = document.getElementById("message");
+      const allMessages = document.getElementById("messages");
+
+      socket.on("message", (message) => {
+        const p = document.createElement("p");
+        p.innerText = message;
+        allMessages.appendChild(p);
+      });
+
+
+      socket.on('connectedroom', ({chance, id}) => {
+        roomid = id;
+        console.log(chance, id);
+      })
+
+      //socket.to(`room-${id}`).emit()
+
+      socket.on('user-message', (roomid, message) => {
+        console.log(roomid, message);
+      })
+
+      sendBtn.addEventListener("click", (e) => {
+        const message = messageInput.value;
+        socket.emit("user-message", {roomid, message});
+      });
+    </script>
+  </body>
+</html>
